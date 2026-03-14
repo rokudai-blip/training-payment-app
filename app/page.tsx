@@ -219,7 +219,13 @@ export default function Home() {
         {/* PDF出力ボタン */}
         <div className="text-center pb-8">
           <button
-            onClick={() => window.print()}
+            onClick={() => {
+              const original = document.title;
+              const [y, mo] = paymentMonth.split("-");
+              document.title = `${y}.${parseInt(mo)}月分 ${trainerName}`;
+              window.print();
+              document.title = original;
+            }}
             disabled={!canPrint}
             className={`px-10 py-3 rounded-xl font-bold text-white text-base shadow transition-all ${
               canPrint
