@@ -3,26 +3,26 @@
 import { useState, useMemo } from "react";
 
 const RATES = [
-  { id: 0,  course: "60分", plan: "月4回プラン", timeType: "時間内", price: 3525 },
-  { id: 1,  course: "60分", plan: "月4回プラン", timeType: "時間外", price: 5525 },
-  { id: 2,  course: "60分", plan: "月2回プラン", timeType: "時間内", price: 3850 },
-  { id: 3,  course: "60分", plan: "月2回プラン", timeType: "時間外", price: 5850 },
-  { id: 4,  course: "60分", plan: "月3回プラン", timeType: "時間内", price: 3850 },
-  { id: 5,  course: "60分", plan: "月3回プラン", timeType: "時間外", price: 5850 },
-  { id: 6,  course: "60分", plan: "月1回プラン", timeType: "時間内", price: 4500 },
-  { id: 7,  course: "60分", plan: "月1回プラン", timeType: "時間外", price: 6500 },
-  { id: 8,  course: "60分", plan: "回数券",     timeType: "時間内", price: 5800 },
-  { id: 9,  course: "60分", plan: "回数券",     timeType: "時間外", price: 7800 },
-  { id: 10, course: "80分", plan: "月4回プラン", timeType: "時間内", price: 4825 },
-  { id: 11, course: "80分", plan: "月4回プラン", timeType: "時間外", price: 6825 },
-  { id: 12, course: "80分", plan: "月2回プラン", timeType: "時間内", price: 5150 },
-  { id: 13, course: "80分", plan: "月2回プラン", timeType: "時間外", price: 7150 },
-  { id: 14, course: "80分", plan: "月3回プラン", timeType: "時間内", price: 5150 },
-  { id: 15, course: "80分", plan: "月3回プラン", timeType: "時間外", price: 7150 },
-  { id: 16, course: "80分", plan: "月1回プラン", timeType: "時間内", price: 5800 },
-  { id: 17, course: "80分", plan: "月1回プラン", timeType: "時間外", price: 7800 },
-  { id: 18, course: "80分", plan: "回数券",     timeType: "時間内", price: 7100 },
-  { id: 19, course: "80分", plan: "回数券",     timeType: "時間外", price: 9100 },
+  { id: 0,  course: "60分", plan: "月4回", timeType: "時間内", price: 3525 },
+  { id: 1,  course: "60分", plan: "月4回", timeType: "時間外", price: 5525 },
+  { id: 2,  course: "60分", plan: "月2回", timeType: "時間内", price: 3850 },
+  { id: 3,  course: "60分", plan: "月2回", timeType: "時間外", price: 5850 },
+  { id: 4,  course: "60分", plan: "月3回", timeType: "時間内", price: 3850 },
+  { id: 5,  course: "60分", plan: "月3回", timeType: "時間外", price: 5850 },
+  { id: 6,  course: "60分", plan: "月1回", timeType: "時間内", price: 4500 },
+  { id: 7,  course: "60分", plan: "月1回", timeType: "時間外", price: 6500 },
+  { id: 8,  course: "60分", plan: "回数券", timeType: "時間内", price: 5800 },
+  { id: 9,  course: "60分", plan: "回数券", timeType: "時間外", price: 7800 },
+  { id: 10, course: "80分", plan: "月4回", timeType: "時間内", price: 4825 },
+  { id: 11, course: "80分", plan: "月4回", timeType: "時間外", price: 6825 },
+  { id: 12, course: "80分", plan: "月2回", timeType: "時間内", price: 5150 },
+  { id: 13, course: "80分", plan: "月2回", timeType: "時間外", price: 7150 },
+  { id: 14, course: "80分", plan: "月3回", timeType: "時間内", price: 5150 },
+  { id: 15, course: "80分", plan: "月3回", timeType: "時間外", price: 7150 },
+  { id: 16, course: "80分", plan: "月1回", timeType: "時間内", price: 5800 },
+  { id: 17, course: "80分", plan: "月1回", timeType: "時間外", price: 7800 },
+  { id: 18, course: "80分", plan: "回数券", timeType: "時間内", price: 7100 },
+  { id: 19, course: "80分", plan: "回数券", timeType: "時間外", price: 9100 },
 ];
 
 const fmt = (n: number) => `¥${n.toLocaleString("ja-JP")}`;
@@ -38,6 +38,14 @@ const today = () => {
   return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
 };
 
+const TimeBadge = ({ timeType }: { timeType: string }) => (
+  <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap ${
+    timeType === "時間内" ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700"
+  }`}>
+    {timeType}
+  </span>
+);
+
 export default function Home() {
   const [trainerName, setTrainerName] = useState("");
   const [paymentMonth, setPaymentMonth] = useState("");
@@ -50,10 +58,11 @@ export default function Home() {
     setCounts((prev) => ({ ...prev, [id]: n }));
   };
 
-  const { total, withholdingTax, transferAmount } = useMemo(() => {
+  const { total, withholdingTax, transferAmount, totalSessions } = useMemo(() => {
     const total = RATES.reduce((s, r) => s + r.price * (counts[r.id] || 0), 0);
     const withholdingTax = Math.floor(total * 0.1021);
-    return { total, withholdingTax, transferAmount: total - withholdingTax };
+    const totalSessions = RATES.reduce((s, r) => s + (counts[r.id] || 0), 0);
+    return { total, withholdingTax, transferAmount: total - withholdingTax, totalSessions };
   }, [counts]);
 
   const activeRates = RATES.filter((r) => (counts[r.id] || 0) > 0);
@@ -62,17 +71,17 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
       {/* ── 画面表示 ── */}
-      <div className="no-print max-w-3xl mx-auto py-8 px-4">
+      <div className="no-print max-w-3xl mx-auto py-6 px-4">
         {/* ヘッダー */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
-          <h1 className="text-2xl font-bold text-gray-800 mb-1">報酬支払計算ツール</h1>
-          <p className="text-sm text-gray-500">パーソナルトレーニング業務請負</p>
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-5">
+          <h1 className="text-xl font-bold text-gray-800 mb-0.5">報酬支払計算ツール</h1>
+          <p className="text-xs text-gray-500">パーソナルトレーニング業務請負</p>
         </div>
 
         {/* 基本情報 */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
-          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">基本情報</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-5">
+          <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">基本情報</h2>
+          <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">請負人名</label>
               <input
@@ -80,7 +89,7 @@ export default function Home() {
                 value={trainerName}
                 onChange={(e) => setTrainerName(e.target.value)}
                 placeholder="例：山田 太郎"
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
             </div>
             <div>
@@ -89,16 +98,56 @@ export default function Home() {
                 type="month"
                 value={paymentMonth}
                 onChange={(e) => setPaymentMonth(e.target.value)}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
             </div>
           </div>
         </div>
 
         {/* セッション入力 */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
-          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">セッション入力</h2>
-          <div className="overflow-x-auto">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-5">
+          <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">セッション入力</h2>
+
+          {/* スマホ：カードレイアウト */}
+          <div className="sm:hidden space-y-2">
+            {RATES.map((r) => {
+              const count = counts[r.id] || 0;
+              const subtotal = r.price * count;
+              return (
+                <div
+                  key={r.id}
+                  className={`rounded-xl border p-3 transition-colors ${
+                    count > 0 ? "border-blue-200 bg-blue-50" : "border-gray-100 bg-gray-50"
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span className="font-bold text-gray-700 text-sm whitespace-nowrap">{r.course}</span>
+                      <span className="text-gray-600 text-sm whitespace-nowrap">{r.plan}</span>
+                      <TimeBadge timeType={r.timeType} />
+                    </div>
+                    <input
+                      type="number"
+                      min={0}
+                      value={count === 0 ? "" : count}
+                      onChange={(e) => handleCount(r.id, e.target.value)}
+                      placeholder="0"
+                      className="w-14 shrink-0 text-center border border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+                    />
+                  </div>
+                  <div className="flex justify-between mt-1.5 text-xs text-gray-400">
+                    <span>単価 {fmt(r.price)}</span>
+                    <span className={subtotal > 0 ? "font-bold text-gray-700" : ""}>
+                      {subtotal > 0 ? fmt(subtotal) : "—"}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* PC：テーブルレイアウト */}
+          <div className="hidden sm:block overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-gray-50 text-gray-500 text-xs">
@@ -118,15 +167,7 @@ export default function Home() {
                     <tr key={r.id} className={count > 0 ? "bg-blue-50" : "hover:bg-gray-50"}>
                       <td className="px-3 py-2 font-medium text-gray-700">{r.course}</td>
                       <td className="px-3 py-2 text-gray-600">{r.plan}</td>
-                      <td className="px-3 py-2">
-                        <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${
-                          r.timeType === "時間内"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-orange-100 text-orange-700"
-                        }`}>
-                          {r.timeType}
-                        </span>
-                      </td>
+                      <td className="px-3 py-2"><TimeBadge timeType={r.timeType} /></td>
                       <td className="px-3 py-2 text-right text-gray-600">{fmt(r.price)}</td>
                       <td className="px-3 py-2 text-center">
                         <input
@@ -150,19 +191,23 @@ export default function Home() {
         </div>
 
         {/* 計算結果 */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
-          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">計算結果</h2>
-          <div className="space-y-3">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-5">
+          <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">計算結果</h2>
+          <div className="space-y-2">
             <div className="flex justify-between items-center py-2 border-b border-gray-100">
-              <span className="text-gray-600">総額</span>
+              <span className="text-gray-600 text-sm">総コマ数</span>
+              <span className="text-lg font-bold text-gray-800">{totalSessions} コマ</span>
+            </div>
+            <div className="flex justify-between items-center py-2 border-b border-gray-100">
+              <span className="text-gray-600 text-sm">総額</span>
               <span className="text-xl font-bold text-gray-800">{fmt(total)}</span>
             </div>
             <div className="flex justify-between items-center py-2 border-b border-gray-100">
-              <span className="text-gray-600">
+              <span className="text-gray-600 text-sm">
                 源泉徴収額
                 <span className="text-xs text-gray-400 ml-1">(10.21%・円未満切捨て)</span>
               </span>
-              <span className="text-lg font-semibold text-red-500">− {fmt(withholdingTax)}</span>
+              <span className="text-base font-semibold text-red-500">− {fmt(withholdingTax)}</span>
             </div>
             <div className="flex justify-between items-center py-3 bg-blue-50 rounded-xl px-3">
               <span className="font-bold text-gray-700">振込額</span>
@@ -172,7 +217,7 @@ export default function Home() {
         </div>
 
         {/* PDF出力ボタン */}
-        <div className="text-center">
+        <div className="text-center pb-8">
           <button
             onClick={() => window.print()}
             disabled={!canPrint}
@@ -200,7 +245,6 @@ export default function Home() {
           </h1>
         </div>
 
-        {/* 基本情報 */}
         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "24px", fontSize: "14px" }}>
           <div>
             <p style={{ margin: "4px 0", color: "#555" }}>支払月</p>
@@ -212,12 +256,9 @@ export default function Home() {
           </div>
         </div>
 
-        {/* セッション明細 */}
         {activeRates.length > 0 && (
           <div style={{ marginBottom: "24px" }}>
-            <p style={{ fontSize: "12px", color: "#555", marginBottom: "8px", fontWeight: "bold" }}>
-              セッション明細
-            </p>
+            <p style={{ fontSize: "12px", color: "#555", marginBottom: "8px", fontWeight: "bold" }}>セッション明細</p>
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
               <thead>
                 <tr style={{ backgroundColor: "#eff6ff" }}>
@@ -247,8 +288,11 @@ export default function Home() {
           </div>
         )}
 
-        {/* 計算結果 */}
-        <div style={{ marginLeft: "auto", maxWidth: "300px", fontSize: "14px" }}>
+        <div style={{ marginLeft: "auto", maxWidth: "320px", fontSize: "14px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid #eee" }}>
+            <span style={{ color: "#555" }}>総コマ数</span>
+            <span style={{ fontWeight: "bold" }}>{totalSessions} コマ</span>
+          </div>
           <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid #eee" }}>
             <span style={{ color: "#555" }}>総額</span>
             <span style={{ fontWeight: "bold" }}>{fmt(total)}</span>
@@ -263,7 +307,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* 発行日 */}
         <div style={{ marginTop: "40px", fontSize: "12px", color: "#888", textAlign: "right" }}>
           発行日：{today()}
         </div>
