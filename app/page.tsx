@@ -93,7 +93,7 @@ export default function Home() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">支払月</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">稼働月</label>
               <input
                 type="month"
                 value={paymentMonth}
@@ -247,7 +247,7 @@ export default function Home() {
 
         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "24px", fontSize: "14px" }}>
           <div>
-            <p style={{ margin: "4px 0", color: "#555" }}>支払月</p>
+            <p style={{ margin: "4px 0", color: "#555" }}>稼働月</p>
             <p style={{ margin: "4px 0", fontSize: "18px", fontWeight: "bold" }}>{formatMonth(paymentMonth)}</p>
           </div>
           <div style={{ textAlign: "right" }}>
